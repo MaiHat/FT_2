@@ -1,15 +1,17 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import reactImg from "./assets/training_1.jpg";
 function Home() {
   const navigate = useNavigate();
 
   return (
     <div>
       <main className="container">
-        <div className="left-side">              
+        <div className="left-side">   
+            <img src={reactImg} alt="woman's training"/>           
             <div>
-            <Link to="/signup">Sign Up</Link>
+            <button onClick={() => navigate("/signup")}>SIGN UP</button>
             </div>
             <div>
             <button onClick={() => navigate("/login")}>LOGIN</button>

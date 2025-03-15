@@ -16,11 +16,9 @@ app.use(express.static(path.join(__dirname, "frontend/build")));
 
 
 app.get("/", (req, res) => {
- 
 });
 
 app.get("/signup", (req, res) => {
-  
 });
 
 app.get("/login", (req, res) => {
@@ -40,10 +38,6 @@ app.post("/submit", (req, res) => {
   console.log(email);
   console.log(password);
   console.log(confirmPassword);
-
-
-  
-  res.render( { inputedName: name });
 });
 
 app.listen(port, () => {
