@@ -16,6 +16,7 @@ function Home() {
             <div>
             <button onClick={() => navigate("/login")}>LOGIN</button>
             </div>
+            <button onClick={() => navigate("/signupformdata")}>SIGN UP FormData</button>
         </div>
 
         <div className="right-side">

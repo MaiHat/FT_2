@@ -1,5 +1,8 @@
 import React, { useRef, useState } from "react";
-import {Link} from "react-router-dom";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { Link } from "react-router-dom";
+import { auth } from "../firebase/firebase";
+import { toast } from "react-toastify";
 
 function Signup() {
 
@@ -16,27 +19,24 @@ async function handleSignUp(event) {
   const enteredPassword = passwordRef.current.value;
   const enteredConfirmPassword = confirmPasswordRef.current.value;
 
-  //エラーハンドリング
-  if (!enteredName || !enteredEmail || !enteredPassword || !enteredConfirmPassword) {
-    setErrorMessage("Please fill in all fields.");
+  // パスワードと確認用パスワードが一致しない場合
+  if (enteredPassword !== enteredConfirmPassword) {
+    setErrorMessage("Passwords do not match.");
     return;
-  } 
-//アドレスの形式チェック
-const emailRegex = /\S+@\S+\.\S+/;
-if (!emailRegex.test(enteredEmail)) {
-  setErrorMessage("Invalid email address.");
-  return;
-}
-// パスワードと確認用パスワードが一致しない場合
-if (enteredPassword !== enteredConfirmPassword) {
-  setErrorMessage("Passwords do not match.");
-  return;
-}
-setErrorMessage("");
+  }
+  setErrorMessage("");
 
-console.log(enteredName);
-console.log(enteredEmail, enteredPassword, enteredConfirmPassword);
-
+  try {
+   await createUserWithEmailAndPassword(auth, enteredEmail, enteredPassword);
+   const user = auth.currentUser;
+   console.log("user registered", user);
+   toast.success("User Registerd Successfully!", 
+    {position: "top-center",
+    });
+  } catch (err) {
+   console.log(err.message);
+   setErrorMessage(err.message);
+  }
 
 }
 
@@ -50,24 +50,28 @@ console.log(enteredEmail, enteredPassword, enteredConfirmPassword);
                 placeholder="User Name"
                 ref={userNameRef}
                 type="text"
+                required
               />
               <input
                 name="email"               
                 placeholder="Email"
                 ref={emailRef} 
-                type="email"    
+                type="email"
+                required
               />
               <input
                 name="password"               
                 placeholder="Password"
                 ref={passwordRef}
-                type="password"                
+                type="password"
+                required              
               />
               <input
                 name="confirmPassword"
                 placeholder="Confirm Password"
                 ref={confirmPasswordRef}
                 type="password"
+                required
               />
               {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
               <button>SIGN UP</button>
