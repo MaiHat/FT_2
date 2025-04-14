@@ -1,39 +1,50 @@
 import React, { useContext, useState, useEffect } from "react";
 import { auth } from "../firebase/firebase";
-import { onAuthStateChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
 
 const AuthContext = React.createContext();
 
-export function useAuth() {
+
+function useAuth() {
     return useContext(AuthContext);
 }
 
-export function AuthProvider({ children }) {
-    const [currentUser, setCurrentUser] = useState(null);
-    const [userLoggedIn, setUserLoggedIn] = useState(false);
+function AuthProvider({ children }) {
+    const [currentUser, setCurrentUser] = useState();
+   // const [userLoggedIn, setUserLoggedIn] = useState(false);
     const [loading, setLoading] = useState(true);
 
+
+    function signup(email, password) {
+        return createUserWithEmailAndPassword(auth, email, password);
+    }
+
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, initializeUser);
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            setCurrentUser(user);
+            setLoading(false);
+            
+        });
         return unsubscribe;
     }, [])
 
-    async function initializeUser(user) {
-        if (user) {
-            setCurrentUser({ ...user });
-            setUserLoggedIn(true);
-        } else {
-            setCurrentUser(null);
-            setUserLoggedIn(false);
-        }
-        setLoading(false);
-    }
+   // async function initializeUser(user) {
+     //   if (user) {
+      //      setCurrentUser({ ...user });
+      //      setUserLoggedIn(true);
+     //   } else {
+      //      setCurrentUser(null);
+      //      setUserLoggedIn(false);
+       // }
+       // setLoading(false); }
+    
 
     const value = {
         currentUser,
-        userLoggedIn,
-        loading
-    }
+        signup,
+       // userLoggedIn,
+       // loading
+    }; 
 
     return (
         <AuthContext.Provider value={value}>
@@ -42,3 +53,5 @@ export function AuthProvider({ children }) {
     )
 
 }
+
+export { AuthProvider, useAuth };
