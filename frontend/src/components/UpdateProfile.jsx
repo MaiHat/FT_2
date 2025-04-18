@@ -3,17 +3,18 @@ import { Form,  Button, Card, Alert } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/authContext";
 
-export default function SignupTest() {
+export default function UpdateProfile() {
     const userNameRef = useRef();
     const emailRef = useRef();
     const passwordRef = useRef();
     const passwordConfirmRef = useRef();
-    const { signup } = useAuth();
+    const { currentUser, changeEmail, changePassword } = useAuth();
     const [errorMessage, setErrorMessage] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate(); 
   
-    async function handleSignUp(event) {
+
+    async function handleSubmit(event) {
         event.preventDefault();
         const enteredName = userNameRef.current.value;
         const enteredEmail = emailRef.current.value;
@@ -22,17 +23,18 @@ export default function SignupTest() {
 
     // パスワードと確認用パスワードが一致しない場合
         if (enteredPassword !== enteredConfirmPassword) {
-            return setErrorMessage("Passwords do not match.");
+            setErrorMessage("Passwords do not match.");
+            return;
         }
-        try { 
-            setErrorMessage("");
-            setLoading(true);        
-            await signup(enteredEmail, enteredPassword, enteredName);
-            console.log("User signed up successfully!");
-            navigate("/profile");
+    try { 
+        setErrorMessage("");
+        setLoading(true);        
+        //await signup(enteredEmail, enteredPassword);
+       console.log("User signed up successfully!");
+       navigate("/profile");
         } catch (err) {
-            console.log(err.message);
-            setErrorMessage("Failed to sign up");
+        console.log(err.message);
+        setErrorMessage("Failed to sign up");
         }
         setLoading(false);
     } 
@@ -42,32 +44,50 @@ export default function SignupTest() {
     
       <Card>
         <Card.Body>
-            <h2 className="text-center mb-4">Sign Up</h2>
+            <h2 className="text-center mb-4">Update Profile</h2>
 
-            <Form onSubmit={handleSignUp}>
+            <Form onSubmit={handleSubmit}>
                 <Form.Group id="username">
                     <Form.Label>User Name</Form.Label>
-                    <Form.Control type="text" ref={userNameRef} required />
+                    <Form.Control 
+                    type="text" 
+                    ref={userNameRef} 
+                    required 
+                    defaultValue={currentUser.userName}
+                    />
                 </Form.Group>
                 <Form.Group id="email">
                     <Form.Label>Email</Form.Label>
-                    <Form.Control type="email" ref={emailRef} required />
+                    <Form.Control 
+                    type="email" 
+                    ref={emailRef} 
+                    required 
+                    defaultValue={currentUser.email} 
+                    />
                 </Form.Group>
                 <Form.Group id="password">
                     <Form.Label>Password</Form.Label>
-                    <Form.Control type="password" ref={passwordRef} required />
+                    <Form.Control 
+                    type="password" 
+                    ref={passwordRef} 
+                    placeholder="Leave blank to keep the same" 
+                    />
                 </Form.Group>
                 <Form.Group id="password-confirm">
                     <Form.Label>Password Confirmation</Form.Label>
-                    <Form.Control type="password" ref={passwordConfirmRef} required />
+                    <Form.Control 
+                    type="password" 
+                    ref={passwordConfirmRef} 
+                    placeholder="Leave blank to keep the same" 
+                    />
                 </Form.Group>
                 {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
-                <Button disabled={loading} className="w-100" type="submit">Sign Up</Button>
+                <Button disabled={loading} className="w-100" type="submit">Update</Button>
             </Form>
         </Card.Body>
       </Card>
       <div className="w-100 text-center mt-2">
-         <Link to="/Login">Already have an account?</Link>
+         <Link to="/profile">Cancel</Link>
       </div>
     
     </div>

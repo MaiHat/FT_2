@@ -1,9 +1,17 @@
 import React, { useContext, useState, useEffect } from "react";
 import { auth } from "../firebase/firebase";
-import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
+import { onAuthStateChanged, 
+        createUserWithEmailAndPassword, 
+        signInWithEmailAndPassword, 
+        signOut, 
+        sendPasswordResetEmail,
+        updateProfile,
+        updateEmail,
+        updatePassword,
+        deleteUser
+     } from "firebase/auth";
 
 const AuthContext = React.createContext();
-
 
 function useAuth() {
     return useContext(AuthContext);
@@ -11,13 +19,48 @@ function useAuth() {
 
 function AuthProvider({ children }) {
     const [currentUser, setCurrentUser] = useState();
-   // const [userLoggedIn, setUserLoggedIn] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [userName, setUserName] = useState("Guest");
+    const [showProfile, setShowProfile] = useState(true);
 
-
-    function signup(email, password) {
-        return createUserWithEmailAndPassword(auth, email, password);
+    function signup(email, password, username) {
+        createUserWithEmailAndPassword(auth, email, password);
+        setUserName(username);
+        updateProfile(auth.currentUser, {displayName: username});
+        console.log(email, password, username);
     }
+
+    function login(email, password) {
+        return signInWithEmailAndPassword(auth, email, password); 
+    }
+
+    function logout() {
+        return signOut(auth);
+    }
+
+    function resetPassword(email) {
+        return sendPasswordResetEmail(auth, email);
+    }
+
+    //function changeProfile(userName, email, password) {
+    //    updateProfile(user {
+    //       displayName: user.userName, 
+            
+    //      });
+   // }
+
+    function changeEmail(email) {
+        return updateEmail(user, email);
+    }
+
+    function changePassword(password) {
+        return updatePassword(user, password);
+    }
+
+    function deleteUser(User) {
+        return deleteUser(user);
+    }
+
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -27,23 +70,21 @@ function AuthProvider({ children }) {
         });
         return unsubscribe;
     }, [])
-
-   // async function initializeUser(user) {
-     //   if (user) {
-      //      setCurrentUser({ ...user });
-      //      setUserLoggedIn(true);
-     //   } else {
-      //      setCurrentUser(null);
-      //      setUserLoggedIn(false);
-       // }
-       // setLoading(false); }
     
 
     const value = {
         currentUser,
+        showProfile,
+        userName,
         signup,
-       // userLoggedIn,
-       // loading
+        login,
+        logout,
+        loading,
+        resetPassword,
+        changeEmail,
+        changePassword,
+        deleteUser
+
     }; 
 
     return (

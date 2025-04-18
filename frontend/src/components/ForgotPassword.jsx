@@ -1,27 +1,21 @@
-
 import React, { useRef, useState } from "react";
 import { Form,  Button, Card, Alert } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/authContext";
 
-function Login() {
+
+export default function ForgotPassword() {
   const emailRef = useRef();
-  const passwordRef = useRef();
   //const [isSigningIn, setIsSigningIn] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
-  const navigate = useNavigate();
+  const { resetPassword } = useAuth();
   
-  async function handleLogin(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
     const enteredEmail = emailRef.current.value;
-    const enteredPassword = passwordRef.current.value;
-    
-    if (!enteredEmail || !enteredPassword) {
-      setErrorMessage("Please fill in all fields.");
-      return;
-    }
+   
    const emailRegex = /\S+@\S+\.\S+/;
     if (!emailRegex.test(enteredEmail)) {
       setErrorMessage("Invalid email address.");
@@ -29,14 +23,14 @@ function Login() {
     }
 
     try {
-      setErrorMessage("");
-      setLoading(true);        
-      await login(enteredEmail, enteredPassword); 
-      console.log("User logged in successfully!");
-      navigate("/profile");
-    } catch(err) {
+        setMessage("");
+        setErrorMessage("");
+        setLoading(true);        
+        await resetPassword(enteredEmail);
+        setMessage("Check your inbox for further instructions");
+    } catch {
       console.log(err.message);
-      setErrorMessage("Failed to log in");
+      setErrorMessage("Failed to reset password");
     }
     //if (!isSigningIn) {
      // setIsSigningIn(true);
@@ -57,34 +51,34 @@ function Login() {
      //   setIsSigningIn(false);
      // }); }  };
   return (
-    <div className="container">
+    <>
       <Card>
-              <Card.Body>
-                  <h2 className="text-center mb-4">LOGIN</h2>
-      
-                  <Form onSubmit={handleLogin}>
+            <Card.Body>
+                <h2 className="text-center mb-4">Password Reset</h2>
+                {message && <Alert variant="success">{message}</Alert>}
+                    <Form onSubmit={handleSubmit}>
                       <Form.Group id="email">
                           <Form.Label>Email</Form.Label>
                           <Form.Control type="email" ref={emailRef} required />
                       </Form.Group>
-                      <Form.Group id="password">
-                          <Form.Label>Password</Form.Label>
-                          <Form.Control type="password" ref={passwordRef} required />
-                      </Form.Group>
+                      
                       {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
-                      <Button disabled={loading} className="w-100" type="submit">LOG IN</Button>
+                       <Button disabled={loading} className="w-100" type="submit">
+                            Reset Password
+                        </Button>
                   </Form>
                   <div className="w-100 text-center mt-3">
-                    <Link to="/forgot-password">Forgot Password?</Link>
+                    <Link to="/login">LOG IN</Link>
                   </div>
               </Card.Body>
             </Card>
-        <div className="w-100 text-center mt-2">
-          <Link to="/SignupTest">Do not have account yet?</Link>
-        </div>
+            <div className="w-100 text-center mt-2">
+            <Link to="/SignupTest">Do not have account yet?</Link>
+            </div>
          
-    </div>
+    </>
   )
 }
 
-export default Login;
+
+

@@ -7,7 +7,10 @@ import SignupFormData from "./components/SignupFormData";
 import Profile from "./components/Profile";
 import SignupTest from "./components/SignupTest";
 import { Container } from "react-bootstrap";
-import { AuthProvider } from "./contexts/AuthContext";
+import { AuthProvider } from "./contexts/authContext";
+import PrivateRoute from "./components/PrivateRoute";
+import ForgotPassword from "./components/ForgotPassword";
+import UpdateProfile from "./components/UpdateProfile";
 
 function App() {
   return (
@@ -24,6 +27,9 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/signupformdata" element={<SignupFormData />} />
           <Route path="/signuptest" element={<SignupTest />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+
         </Routes>
         </AuthProvider>
       </BrowserRouter>
