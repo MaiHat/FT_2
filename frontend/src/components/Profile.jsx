@@ -6,7 +6,7 @@ import { useAuth } from "../contexts/authContext";
 
 function Profile() {
     const [error, setError] = useState("");
-    const { currentUser, logout, userName, setShowProfile } = useAuth();
+    const { currentUser, logout, username, setShowProfile } = useAuth();
     const navigate = useNavigate(); 
     //setShowProfile(true);
    async function handleLogout() {
@@ -24,7 +24,7 @@ return (
     <h1>Hello  you are logged in</h1>
     <Card>
         <Card.Body>
-            <h2 className="text-center mb-4">Hello {userName}</h2>
+            <h2 className="text-center mb-4">Hello {username}</h2>
             {error && <Alert variant="danger">{error}</Alert> }
             <strong>Email:</strong> {currentUser.email}
             <Link to="/update-profile" 

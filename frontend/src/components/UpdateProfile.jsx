@@ -48,16 +48,16 @@ export default function UpdateProfile() {
 
             <Form onSubmit={handleSubmit}>
                 <Form.Group id="username">
-                    <Form.Label>User Name</Form.Label>
+                    <Form.Label>New User Name</Form.Label>
                     <Form.Control 
                     type="text" 
                     ref={userNameRef} 
                     required 
-                    defaultValue={currentUser.userName}
+                    defaultValue={currentUser.username}
                     />
                 </Form.Group>
                 <Form.Group id="email">
-                    <Form.Label>Email</Form.Label>
+                    <Form.Label>New Email</Form.Label>
                     <Form.Control 
                     type="email" 
                     ref={emailRef} 
@@ -66,7 +66,7 @@ export default function UpdateProfile() {
                     />
                 </Form.Group>
                 <Form.Group id="password">
-                    <Form.Label>Password</Form.Label>
+                    <Form.Label>New Password</Form.Label>
                     <Form.Control 
                     type="password" 
                     ref={passwordRef} 

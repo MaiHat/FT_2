@@ -80,7 +80,7 @@ function Login() {
               </Card.Body>
             </Card>
         <div className="w-100 text-center mt-2">
-          <Link to="/SignupTest">Do not have account yet?</Link>
+          <Link to="/Signup">Do not have account yet?</Link>
         </div>
          
     </div>

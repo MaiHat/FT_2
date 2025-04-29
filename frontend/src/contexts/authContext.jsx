@@ -20,14 +20,20 @@ function useAuth() {
 function AuthProvider({ children }) {
     const [currentUser, setCurrentUser] = useState();
     const [loading, setLoading] = useState(true);
-    const [userName, setUserName] = useState("Guest");
+    const [username, setUserName] = useState("Guest");
     const [showProfile, setShowProfile] = useState(true);
+    const user = auth.currentUser;
 
-    function signup(email, password, username) {
-        createUserWithEmailAndPassword(auth, email, password);
+    async function getUserName(username) {
+        if (!auth.currentUser) {
+          throw new Error("No current user found.");
+        }
+        await updateProfile(auth.currentUser, { displayName: username });
         setUserName(username);
-        updateProfile(auth.currentUser, {displayName: username});
-        console.log(email, password, username);
+      }
+
+    function signup(email, password) {
+       return createUserWithEmailAndPassword(auth, email, password);
     }
 
     function login(email, password) {
@@ -35,19 +41,13 @@ function AuthProvider({ children }) {
     }
 
     function logout() {
+        setUserName("Guest");
         return signOut(auth);
     }
 
     function resetPassword(email) {
         return sendPasswordResetEmail(auth, email);
     }
-
-    //function changeProfile(userName, email, password) {
-    //    updateProfile(user {
-    //       displayName: user.userName, 
-            
-    //      });
-   // }
 
     function changeEmail(email) {
         return updateEmail(user, email);
@@ -57,17 +57,21 @@ function AuthProvider({ children }) {
         return updatePassword(user, password);
     }
 
-    function deleteUser(User) {
+    function deleteUser(user) {
         return deleteUser(user);
     }
 
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
-            setCurrentUser(user);
+           if(user) { 
+                setCurrentUser(user);
+                setUserName(user.displayName || "Guest");
+            } else {
+                setUserName("Guest");
+            }
             setLoading(false);
-            
-        });
+            });
         return unsubscribe;
     }, [])
     
@@ -75,7 +79,8 @@ function AuthProvider({ children }) {
     const value = {
         currentUser,
         showProfile,
-        userName,
+        username,
+        getUserName,
         signup,
         login,
         logout,
