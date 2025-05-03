@@ -1,6 +1,5 @@
 
 import React, { useRef, useState } from "react";
-import { Form,  Button, Card, Alert } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/authContext";
 
@@ -57,32 +56,35 @@ function Login() {
      //   setIsSigningIn(false);
      // }); }  };
   return (
-    <div className="container">
-      <Card>
-              <Card.Body>
-                  <h2 className="text-center mb-4">LOGIN</h2>
+    <div className="form">
+      <div className="form--container">
+        <div className="form--wrapper">
+          <div className="form--card">
+            <div className="form--card-body">
+              <h2 className="form--title">LOGIN</h2>
       
-                  <Form onSubmit={handleLogin}>
-                      <Form.Group id="email">
-                          <Form.Label>Email</Form.Label>
-                          <Form.Control type="email" ref={emailRef} required />
-                      </Form.Group>
-                      <Form.Group id="password">
-                          <Form.Label>Password</Form.Label>
-                          <Form.Control type="password" ref={passwordRef} required />
-                      </Form.Group>
-                      {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
-                      <Button disabled={loading} className="w-100" type="submit">LOG IN</Button>
-                  </Form>
-                  <div className="w-100 text-center mt-3">
-                    <Link to="/forgot-password">Forgot Password?</Link>
-                  </div>
-              </Card.Body>
-            </Card>
-        <div className="w-100 text-center mt-2">
-          <Link to="/Signup">Do not have account yet?</Link>
+              <form onSubmit={handleLogin}>
+                <div className="form--group">
+                  <label>Email</label>
+                  <input id="email" type="email" ref={emailRef} required />
+                </div>
+                <div className="form--group" >
+                  <label>Password</label>
+                  <input id="password" type="password" ref={passwordRef} required />
+                </div>
+                {errorMessage && <div className="alert error">{errorMessage}</div>}
+                <button disabled={loading} className="submit-button" type="submit">LOG IN</button>
+              </form>
+              <div className="form--link">
+              <Link to="/forgot-password">Forgot Password?</Link>
+              </div>
+              <div className="form--link">
+              <Link to="/Signup">Do not have account yet?</Link>
+              </div>
+            </div>
+          </div>
         </div>
-         
+      </div>
     </div>
   )
 }

@@ -1,0 +1,79 @@
+
+.form {
+    
+    &--container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: $white;
+}
+    &--wapper {
+        width: 100%;
+        max-width: 400px;
+        padding: 1rem;
+    }
+    &--card {
+        background: $white;
+        border: 1rem solid $black;
+        border-radius: 0;
+        box-shadow: 0 2px 8px raba(0, 0, 0, 0.1);
+        overflow: hidden;
+        &-body {
+            padding: 2rem;
+        }
+    }
+    &--title {
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    }
+    &--group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 1rem;
+    } 
+    &--link {
+    width: 100%;
+    text-align: center;
+    margin-top: 1rem;
+    }
+}
+
+label {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+input {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+
+    &:focus {
+      outline: none;
+      border-color: #007bff;
+    }
+  }
+
+
+.submit-button {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+   
+    background-color: #007bff;
+    border: none;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+  
+    &:disabled {
+      background-color: #7da8d6;
+      cursor: not-allowed;
+    }
+}
+
+
+
+

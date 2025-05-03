@@ -2,6 +2,7 @@ import React,{ useState, useRef } from 'react'
 import { Form,  Button, Card, Alert } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/authContext";
+import { Container } from "react-bootstrap";
 
 export default function SignupTest() {
     const userNameRef = useRef();
@@ -38,39 +39,56 @@ export default function SignupTest() {
         setLoading(false);
     } 
   return (
-    <div>
-    
-    
-      <Card>
-        <Card.Body>
-            <h2 className="text-center mb-4">Sign Up</h2>
-
-            <Form onSubmit={handleSignUp}>
-                <Form.Group id="username">
-                    <Form.Label>User Name</Form.Label>
-                    <Form.Control type="text" ref={userNameRef} required />
-                </Form.Group>
-                <Form.Group id="email">
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control type="email" ref={emailRef} required />
-                </Form.Group>
-                <Form.Group id="password">
-                    <Form.Label>Password</Form.Label>
-                    <Form.Control type="password" ref={passwordRef} required />
-                </Form.Group>
-                <Form.Group id="password-confirm">
-                    <Form.Label>Password Confirmation</Form.Label>
-                    <Form.Control type="password" ref={passwordConfirmRef} required />
-                </Form.Group>
-                {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
-                <Button disabled={loading} className="w-100" type="submit">Sign Up</Button>
-            </Form>
-        </Card.Body>
-      </Card>
-      <div className="w-100 text-center mt-2">
-         <Link to="/Login">Already have an account?</Link>
-      </div>
-    
+    <div className='form'>
+    <div className="form--container" >
+     <div className='form--wrapper'>
+       <div className='form--card'>
+        <div className='form--card-body'>
+        <h2 className="form--title">Sign Up</h2>
+        
+        <form onSubmit={handleSignUp}>
+            <div className='form--group'> 
+                <label>User Name</label>
+                <input 
+                id="userName"
+                type="text" 
+                ref={userNameRef} 
+                required />
+            </div>
+            <div className='form--group'> 
+                <label>Email</label>
+                <input id="email" 
+                type="email" 
+                ref={emailRef} 
+                required />
+            </div>
+            <div className='form--group'> 
+                <label>Password</label>
+                <input 
+                id="password" 
+                type="password" 
+                ref={passwordRef} 
+                required />
+            </div>
+            <div className='form--group'>   
+                <label>Password Confirmation</label>
+                <input 
+                id="password-confirm" 
+                type="password" 
+                ref={passwordConfirmRef} 
+                required />
+            </div>
+            {errorMessage && <div className="alert error">{errorMessage}</div>}
+            <Button disabled={loading} className="submit-button" type="submit">Sign Up</Button>
+        </form>
+        
+        <div clssName="form--link">
+            <Link to="/Login">Already have an account?</Link>
+        </div>
+    </div>
+    </div>
+    </div>
+    </div>
     </div>
   );
 }

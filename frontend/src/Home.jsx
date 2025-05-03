@@ -1,30 +1,33 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import reactImg from "./assets/training_1.jpg";
+import Logo from "./components/Logo";
+//import reactImg from "./assets/training_1.jpg";<img src={reactImg} alt="woman's training"/>
 function Home() {
   const navigate = useNavigate();
 
   return (
-    <div>
-      <main className="container">
-        <div className="left-side">   
-            <img src={reactImg} alt="woman's training"/>           
-            <div>
-            <button onClick={() => navigate("/signup")}>SIGN UP</button>
-            </div>
-            <div>
-            <button onClick={() => navigate("/login")}>LOGIN</button>
-            </div>
+    <div className="landing-page">
+      <div className="left-side">
+        <Logo />
+        <div className="btn-box">
+        <button className="btn--signup" onClick={() => navigate("/signup")}>SIGN UP</button>
+        <button className="btn--login" onClick={() => navigate("/login")}>LOGIN</button>
+        </div>
         </div>
 
         <div className="right-side">
-            <div><h1>LEVEL UP</h1></div>
-
-            <p>track yout fitness</p>
-            <div><h2></h2></div>
+          <div className="rotated-text">
+            <h1 className="text-block">Level</h1>
+            <h1 className="text-block">Up</h1>
+          </div>
+            <p>start your fitness game</p>
+            <div className="arrows">
+            <i class='bx bx-caret-up'></i>
+            <i class='bx bx-caret-up'></i>
+            <i class='bx bx-caret-up'></i>
+            </div>
         </div>
-     </main>
     </div>
   );
 }
