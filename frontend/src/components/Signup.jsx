@@ -3,6 +3,7 @@ import { Form,  Button, Card, Alert } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/authContext";
 import { Container } from "react-bootstrap";
+import Logo from "./Logo";
 
 export default function SignupTest() {
     const userNameRef = useRef();
@@ -40,6 +41,7 @@ export default function SignupTest() {
     } 
   return (
     <div className='form'>
+        <Logo />
     <div className="form--container" >
      <div className='form--wrapper'>
        <div className='form--card'>
@@ -82,7 +84,7 @@ export default function SignupTest() {
             <Button disabled={loading} className="submit-button" type="submit">Sign Up</Button>
         </form>
         
-        <div clssName="form--link">
+        <div className="form--link">
             <Link to="/Login">Already have an account?</Link>
         </div>
     </div>

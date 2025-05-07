@@ -10,24 +10,25 @@ function Home() {
     <div className="landing-page">
       <div className="left-side">
         <Logo />
-        <div className="btn-box">
+        <div className="btn--box">
         <button className="btn--signup" onClick={() => navigate("/signup")}>SIGN UP</button>
         <button className="btn--login" onClick={() => navigate("/login")}>LOGIN</button>
         </div>
-        </div>
+      </div>
 
-        <div className="right-side">
+      <div className="right-side">
           <div className="rotated-text">
-            <h1 className="text-block">Level</h1>
-            <h1 className="text-block">Up</h1>
+            <h1 className="rotated-text--1">Level
+              up</h1>
+            <h1 className="rotated-text--2">Up</h1>
           </div>
-            <p>start your fitness game</p>
-            <div className="arrows">
-            <i class='bx bx-caret-up'></i>
-            <i class='bx bx-caret-up'></i>
-            <i class='bx bx-caret-up'></i>
-            </div>
-        </div>
+          <p>start your fitness game</p>
+          <div className="arrows">
+            <i className='bx bx-caret-up'></i>
+            <i className='bx bx-caret-up'></i>
+            <i className='bx bx-caret-up'></i>
+          </div>
+      </div>
     </div>
   );
 }

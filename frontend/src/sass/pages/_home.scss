@@ -1,37 +1,65 @@
 .landing-page {
-    position: relative;
+    width: 100%;
     }
 
  .left-side {
     background-image: url(../assets/training_1.jpg);
     background-size: cover;
-    background-position: center;
     height: 100vh;
     width: 50%;
     float: left;
+    position: relative;
     }
 
-.btn-box {
-    position: bottom;
+  .btn--box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: end;
+    width: 100%;
+    position: absolute;
+    bottom: 10rem;
+    
+    button {
+        height: 5rem;
+        width: 33%;
+        font-size: 4rem;
+        margin-bottom: 5rem;
+        line-height: 4rem;
+        }
     }
+    
+    
+
 
 
 .right-side {
     background-color: $yellow;
+    position: relative;
     float: right;
     height: 100vh;
     width: 50%;
-    h1 {
+    /*.rotated-text {
+        rotate: -90deg;
+        
+    }*/
+    .rotated-text h1{
+        position: absolute;
         font-size: 20rem; 
         color: $black;
-       }
-       p {
-        font-size: 5rem; 
+        text-transform: uppercase;
+        float: left;
+        line-height: 14rem;
+      }
+    p {
+        font-size: 3rem; 
         color: $black;
+        justify-items: center;
+        float: right;
        }
 }
+
 .arrows {
-    position: relative;
   i {
         position: absolute;
         bottom: 1rem;
@@ -41,9 +69,21 @@
         display: block;
     }
 }
-.rotated-text {
-        rotate: -90deg;
-        text-transform: uppercase;
-        transform-origin: bottom;
-      }
+
       
+/* .btn--box {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    bottom: 50px;
+    background-color: red;
+    align-items: center;
+    justify-content: center;
+
+    button {
+            height: 5rem;
+            width: 25rem;
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        } */

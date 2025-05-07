@@ -2,6 +2,7 @@
 import React, { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/authContext";
+import Logo from "./Logo";
 
 function Login() {
   const emailRef = useRef();
@@ -57,6 +58,7 @@ function Login() {
      // }); }  };
   return (
     <div className="form">
+      <Logo />
       <div className="form--container">
         <div className="form--wrapper">
           <div className="form--card">
