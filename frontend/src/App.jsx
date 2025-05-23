@@ -4,7 +4,6 @@ import Home from "./Home";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Profile from "./components/Profile";
-import Logo from "./components/Logo";
 import { AuthProvider } from "./contexts/authContext";
 import PrivateRoute from "./components/PrivateRoute";
 import ForgotPassword from "./components/ForgotPassword";
@@ -26,8 +25,7 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/update-profile" element={<UpdateProfile />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="logo" element={<Logo />} />
+            <Route path="/calendar" element={<Calendar />} /> 
           </Routes>
           </AuthProvider>
       </BrowserRouter>

@@ -1,14 +1,18 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { db } from "./firebase";
+import { query, collection } from "firebase/firestore";
 
-function Event() {
-     //dateおすとevent入力のpopupを出すための
-        const [selectedDate, setSelectedDate] = useState(currentDate);
-        const [showEventPopup, setShowEventPopup] = useState(false);
-        //event入力
-        const [events, setEvents] = useState([]);
-        const [eventTime, setEventTime] = useState({ hours: "00", minutes: "00"});
-        const [eventText, setEventText] = useState("");
-        //for editing event
-        const [editingEvent, setEditingEvent] = useState(null);
-    
+export default function Event() {
+        //Create event
+        //Read event from firebase
+        useEffect(()=> {
+
+        })
+        //Update event 
+        //Delete event
+  return (
+    <div>
+      
+    </div>
+  )
 }

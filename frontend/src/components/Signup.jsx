@@ -1,8 +1,6 @@
 import React,{ useState, useRef } from 'react'
-import { Form,  Button, Card, Alert } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/authContext";
-import { Container } from "react-bootstrap";
 import Logo from "./Logo";
 
 export default function SignupTest() {
@@ -81,7 +79,7 @@ export default function SignupTest() {
                 required />
             </div>
             {errorMessage && <div className="alert error">{errorMessage}</div>}
-            <Button disabled={loading} className="submit-button" type="submit">Sign Up</Button>
+            <button disabled={loading} className="submit-button" type="submit">Sign Up</button>
         </form>
         
         <div className="form--link">

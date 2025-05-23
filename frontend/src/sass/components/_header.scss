@@ -1,0 +1,19 @@
+.header {
+    width: 100%;
+    background-color: $yellow;
+    border: 0.5rem solid $black;
+
+    &--wrapper {
+        /* clearfix */
+        content: "";
+        clear: both;
+        display: table;
+        
+    }
+    &--left {
+        float: left;
+    }
+    &--right {
+        float: right;
+    }
+}

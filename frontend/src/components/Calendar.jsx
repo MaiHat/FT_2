@@ -14,7 +14,7 @@ function Calendar() {
         "September",
         "October",
         "November",
-        "Deceember",
+        "December",
     ];
     const currentDate = new Date();
     //calenadar
@@ -23,9 +23,15 @@ function Calendar() {
     //dateおすとevent入力のpopupを出すための
     const [selectedDate, setSelectedDate] = useState(currentDate);
     const [showEventPopup, setShowEventPopup] = useState(false);
-    //event入力
+    //exerciset入力
+    
     const [events, setEvents] = useState([]);
     const [eventTime, setEventTime] = useState({ hours: "00", minutes: "00"});
+    const [eventParts, setEventParts] = useState([]);
+    const [weight, setWeight] = useState("");
+    const [rep, setRep] = useState("");
+    const [sets, setSets] = useState("");
+
     const [eventText, setEventText] = useState("");
     //for editing event
     const [editingEvent, setEditingEvent] = useState(null);
@@ -46,21 +52,30 @@ function Calendar() {
     function handleDayClick (day) {
         const clickedDate = new Date(currentYear, currentMonth, day);
         const today = new Date();
-
-        if (clickedDate < today) {
+           
             setSelectedDate(clickedDate);
             setShowEventPopup(true);
-            setEventTime({ hours: "00", minutes: "00"});
             setEventText("");
             setEditingEvent(null);
         }
+
+    function handleTodayClick() {
+            setSelectedDate(currentDate);
+            setShowEventPopup(true);
+            setEventText("");
+            setEditingEvent(null);
     }
+    
 
     function handleEventSubmit() {
         const newEvent = {
             id: editingEvent ? editingEvent.id : Date.now(), //idがあればevent editなければnew event
             date: selectedDate,
-            time: `${eventTime.hours.padStart(2, "0")}:${eventTime.minutes.padStart(2, "0")}`,
+            //part:  ,
+           // event: ,
+            //weight:,
+            //reps:,
+            //sets:,
             text: eventText,
         }
 
@@ -99,24 +114,26 @@ function Calendar() {
         setEvents(updatedEvents);
     }
 
-    function handleTimeChange(e) {
+    /*function handleTimeChange(e) {
         const {name, value} = e.target;
         setEventTime((prevTime) => ({...prevTime, [name]: value.padStart(2, "0")})) 
         //入力されたvalueは2文字で1文字しかない場合は0が入れられるという設定
-    }
+    } */
 
   return (
     <div className='calendar-container'>
     <div className='calendar-app'>
         <div className='calendar'>
-            <h1 className='heading'>Calendar</h1>
+            <div className="calendar--wrapper">
             <div className='navigate-date'>
-                <h2 className='month'>{monthsOfYear[currentMonth]}</h2>
-                <h2 className='year'>{currentYear}</h2>
-                <div className='buttons'>
-                    <i className='bx bx-chevron-left' onClick={prevMonth}></i>
-                    <i className='bx bx-chevron-right' onClick={nextMonth}></i>
-                </div>
+            <div className='buttons'>
+            <i className='bx bx-chevron-left' onClick={prevMonth}></i>
+            </div>
+            <h1 className='month'>{monthsOfYear[currentMonth]}</h1>
+            <h1 className='year'>{currentYear}</h1>
+            <div className='buttons'>
+                <i className='bx bx-chevron-right' onClick={nextMonth}></i>
+            </div>
             </div>
             <div className='weekdays'>
                 {daysOfWeek.map((day) => <span key={day}>{day}</span>)}
@@ -139,19 +156,18 @@ function Calendar() {
                 </span>
                 )}
             </div>
+            </div>
         </div>
         <div className='events'>
             {showEventPopup &&  (
                 <div className='event-popup'>
-                <div className='time-input'>
-                    <div className='event-popup-time'>Time</div>
+                <h1>Select Event</h1>
+              <div className='time-input'>
+                    <div className='event-popup-time'>Part</div>
                     <input 
-                    type="number" 
-                    name="hours" 
-                    min={0} 
-                    max={24} 
-                    className="hours" 
-                    value={eventTime.hours} 
+                    type="text" 
+                    name="part" 
+                    //value={} 
                     onChange={handleTimeChange} //(e) => setEventTime({...eventTime, hours: e.target.value})
                     />
                     <input 

@@ -2,6 +2,9 @@ import React, { useRef, useState } from "react";
 import { Card, Button, Alert } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/authContext";
+import Header from "./Header";
+import Calendar from "./Calendar";
+import Greeting from "./Greeting";
 
 
 function Profile() {
@@ -9,33 +12,17 @@ function Profile() {
     const { currentUser, logout, username, setShowProfile } = useAuth();
     const navigate = useNavigate(); 
     //setShowProfile(true);
-   async function handleLogout() {
-        setError("");
-        navigate("/login");
-        try {
-            await logout();
-        } catch(err) {
-            setError("Failed to log out");
-        }
-    }
+   
 
 return (
 <>
-    <h1>Hello  you are logged in</h1>
-    <Card>
-        <Card.Body>
-            <h2 className="text-center mb-4">Hello {username}</h2>
-            {error && <Alert variant="danger">{error}</Alert> }
-            <strong>Email:</strong> {currentUser.email}
-            <Link to="/update-profile" 
-            className="btn btn-primary w-100 mt-3">Update Profile</Link>
-        </Card.Body>
-    </Card>
-    <div className="w-100 text-center mt-2">
-        <Button variant="link" onClick={handleLogout}>
-            LOG OUT
-        </Button>
-    </div>
+    <Header />
+    <div className="profile">
+    <Greeting />
+    
+        {error && <Alert variant="danger">{error}</Alert> }
+            
+    </div>      
 </>
 )
 }
