@@ -7,6 +7,26 @@ export default function Greeting() {
   const { currentUser, username } = useAuth();
   const navigate = useNavigate();
   const today = new Date();
+  const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const monthsOfYear = [
+   "January",
+   "February",
+   "March",
+   "April",
+   "May",
+   "June",
+   "July",
+   "August",
+   "September",
+   "October",
+   "November",
+   "December",
+    ];
+  const [currentMonth, setCurrentMonth] = useState(today.getMonth());
+  const [currentYear, setCurrentYear] = useState(today.getFullYear());
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+
   const [selectedDate, setSelectedDate] = useState(null);
   const [addPopup, setAddPopup] = useState(false);
   const [createPopup, setCreatePopup] = useState(false);
@@ -36,6 +56,15 @@ export default function Greeting() {
     sets: "",
     note: "",
   });
+  function prevMonth() {
+        setCurrentMonth((prevMonth) => (prevMonth === 0 ? 11 : prevMonth - 1));
+        setCurrentYear((prevYear) => (currentMonth === 0 ? prevYear - 1 : prevYear));
+    } 
+
+  function nextMonth() {
+    setCurrentMonth((prevMonth) => (prevMonth === 11 ? 0 : prevMonth + 1));
+    setCurrentYear((prevYear) => (currentMonth === 11 ? prevYear + 1 : prevYear));
+  }
 
   useEffect(() => {
     if(selectedWorkout) {
@@ -49,7 +78,11 @@ export default function Greeting() {
   }, [selectedWorkout]);
 
 
-
+  function handleClickDate (day) {
+    const clickedDate = new Date(currentYear, currentMonth, day);
+    setSelectedDate(clickedDate);
+    setAddPopup(true);
+  }
 
   function handleClickTodays() {
     setSelectedDate(today);
@@ -125,144 +158,181 @@ function handleDeleteWorkout(id) {
 }
 
   return (
-    <div>
-      <div className="greeting">
-        <h1>Hello  {username}</h1>
-        <h2>Email: {currentUser.email}</h2>
-        <button onClick={handleClickTodays}>Today's Training</button>
-        <div className='archived-days'>
-              <h2>Weekly Archive days</h2>
-              <h3>Monthy days</h3>
-        </div>
-
-        {/* add workout popup */}
-        <div className='events'>
-            {addPopup &&  (
-            <div className='event-popup'>
-              <h1>Add Work out</h1>
-              <h2>{selectedDate ? selectedDate.toLocaleDateString() : ''}</h2>
-             {Object.keys(workouts).map((bodyPart, index) => (
-              <div key={index}>
-                <h3>{bodyPart}</h3>
-                {workouts[bodyPart].map((workout, idx) => (
-                <button 
-                key={idx}
-                onClick={() => {setSelectedWorkout({
-            bodyPart: bodyPart,
-            index: idx,
-            ...workout
-                });
-          setDetailsPopup(true);
-                }}>
-                  {workout.name}
-                </button>
-                ))}
+    <div className='calendar-container'>
+      <div className='calendar-app'>
+        <div className='calendar'>
+            <div className="calendar--wrapper">
+              <div className='navigate-date'>
+                <div className='buttons'>
+                  <i className='bx bx-chevron-left' onClick={prevMonth}></i>
+                </div>
+                <h1 className='month'>{monthsOfYear[currentMonth]}</h1>
+                <h1 className='year'>{currentYear}</h1>
+                <div className='buttons'>
+                    <i className='bx bx-chevron-right' onClick={nextMonth}></i>
+                </div>
               </div>
-            ))}
-              <button onClick={handleClickCreate}>Create Work out</button>
-              <button className="close-event-popup" onClick={() => setAddPopup(false)}>
-                <i className='bx bx-x'></i>
-              </button>
+              <div className='weekdays'>
+                  {daysOfWeek.map((day) => <span key={day}>{day}</span>)}
+              </div>
+              <div className='days'>
+                  {[...Array(firstDayOfMonth).keys()].map((_, index) => (
+                      <span key={`empty-${index}`}/>
+                  ))}
+                  {[...Array(daysInMonth).keys()].map((day) => 
+                  <span 
+                  key={day + 1} 
+                  className={
+                      day + 1 === today.getDate() && 
+                      currentMonth === today.getMonth() &&
+                      currentYear === today.getFullYear() 
+                      ? "current-day" : "" 
+                  } 
+                  onClick={() => handleClickDate(day + 1)} >
+                  {day+1}
+                  </span>
+                  )}
+              </div>
             </div>
-            )}
         </div>
-          
-        {/*workout details popup*/ }
-        <div className='events'>
-            {detailsPopup && selectedWorkout && (
+        <div className="greeting">
+          <h1>Hello  {username}</h1>
+          <h2>Email: {currentUser.email}</h2>
+          <button onClick={handleClickTodays}>Today's Training</button>
+          <div className='archived-days'>
+                <h2>Weekly Archive days</h2>
+                <h3>Monthy days</h3>
+          </div>
+
+          {/* add workout popup */}
+          <div className='events'>
+              {addPopup &&  (
               <div className='event-popup'>
-                <h1>{selectedWorkout.name} (from {selectedWorkout.bodyPart})</h1>
-                <form onSubmit={handleWorkoutSubmit}>
-                  <label>Weight:</label>
-                  <input
-                    type="number"
-                    value={formData.weight}
-                    name="weight"
-                    onChange={handleChangeWorkouts}
-                  />
-                  <label>Reps:</label>
-                  <input
-                    type="number"
-                    value={formData.reps}
-                    name="reps"
-                    onChange={handleChangeWorkouts}
-                  />
-                  <label>Sets:</label>
-                  <input
-                    type="number"
-                    value={formData.sets}
-                    name="sets"
-                    onChange={handleChangeWorkouts}
-                  />
-                  <label>Note:</label>
-                  <textarea
-                    value={formData.note}
-                    name="note"
-                    onChange={handleChangeWorkouts}
-                    placeholder="note"
-                  />
-                  <button type="submit">Save</button>
-                </form>
-                <button className="close-event-popup" onClick={() => setDetailsPopup(false)}>
+                <h1>Add Work out</h1>
+                <h2>{selectedDate ? selectedDate.toLocaleDateString() : ''}</h2>
+              {Object.keys(workouts).map((bodyPart, index) => (
+                <div key={index}>
+                  <h3>{bodyPart}</h3>
+                  {workouts[bodyPart].map((workout, idx) => (
+                  <button 
+                  key={idx}
+                  onClick={() => {setSelectedWorkout({
+              bodyPart: bodyPart,
+              index: idx,
+              ...workout
+                  });
+            setDetailsPopup(true);
+                  }}>
+                    {workout.name}
+                  </button>
+                  ))}
+                </div>
+              ))}
+                <button onClick={handleClickCreate}>Create Work out</button>
+                <button className="close-event-popup" onClick={() => setAddPopup(false)}>
                   <i className='bx bx-x'></i>
                 </button>
+              </div>
+              )}
+          </div>
+            
+          {/*workout details popup*/ }
+          <div className='events'>
+              {detailsPopup && selectedWorkout && (
+                <div className='event-popup'>
+                  <h1>{selectedWorkout.name} (from {selectedWorkout.bodyPart})</h1>
+                  <form onSubmit={handleWorkoutSubmit}>
+                    <label>Weight:</label>
+                    <input
+                      type="number"
+                      value={formData.weight}
+                      name="weight"
+                      onChange={handleChangeWorkouts}
+                    />
+                    <label>Reps:</label>
+                    <input
+                      type="number"
+                      value={formData.reps}
+                      name="reps"
+                      onChange={handleChangeWorkouts}
+                    />
+                    <label>Sets:</label>
+                    <input
+                      type="number"
+                      value={formData.sets}
+                      name="sets"
+                      onChange={handleChangeWorkouts}
+                    />
+                    <label>Note:</label>
+                    <textarea
+                      value={formData.note}
+                      name="note"
+                      onChange={handleChangeWorkouts}
+                      placeholder="note"
+                    />
+                    <button type="submit">Save</button>
+                  </form>
+                  <button className="close-event-popup" onClick={() => setDetailsPopup(false)}>
+                    <i className='bx bx-x'></i>
+                  </button>
+                </div>
+              )}
+          </div>
+
+          {/*to display workout*/}
+          {Object.entries(workouts).map(([bodyPart, exercises]) => (
+                <div key={bodyPart}>
+                  {exercises
+                    .filter(workout => workout.date === (selectedDate && selectedDate.toDateString()))
+                    .map((workout, index) => (
+                      <div className='event' key={index}>
+                        <div className='event-date'>{workout.date}</div>
+                        <div className='event-time'>{bodyPart}</div>
+                        <div className='event-text'>
+                          {workout.name} 
+                          weight: {workout.weight} 
+                          reps: {workout.reps} 
+                          sets: {workout.sets} 
+                          note: {workout.note}
+                        </div> 
+                        <div className='event-buttons'>
+                          <i className='bx bxs-edit-alt' ></i>
+                          <i className='bx bxs-message-alt-x' onClick={() => handleDeleteWorkout(workout.id)}></i>
+                        </div>
+                      </div>
+                    ))
+                  }
+                </div>
+          ))}
+            
+          {/*Create workout popup*/}
+          <div className='events'>
+            {createPopup &&  (
+              <div className='event-popup'>
+                <form onSubmit={handleCreateWorkout}>
+                <h1>Create</h1>
+                <label>Parts</label>
+                <input type="text" 
+                name="bodyPart"
+                placeholder="Body Part"
+                />
+                <label>Workout Name</label>
+                <input type="text" 
+                name="workoutName"
+                placeholder="Workout Name" 
+                />
+                <button>Save</button>
+                <button className="close-event-popup" onClick={() => setCreatePopup(false)}>
+                    <i className='bx bx-x'></i>
+                  </button>
+                </form>
               </div>
             )}
-        </div>
+          </div>
+            
+            
 
-        {/*to display workout*/}
-        {Object.entries(workouts).map(([bodyPart, exercises]) => (
-              <div key={bodyPart}>
-                {exercises
-                  .filter(workout => workout.date === (selectedDate && selectedDate.toDateString()))
-                  .map((workout, index) => (
-                    <div className='event' key={index}>
-                      <div className='event-date'>{workout.date}</div>
-                      <div className='event-time'>{bodyPart}</div>
-                      <div className='event-text'>
-                        {workout.name} 
-                        weight: {workout.weight} 
-                        reps: {workout.reps} 
-                        sets: {workout.sets} 
-                        note: {workout.note}
-                      </div> 
-                      <div className='event-buttons'>
-                        <i className='bx bxs-edit-alt' ></i>
-                        <i className='bx bxs-message-alt-x' onClick={() => handleDeleteWorkout(workout.id)}></i>
-                      </div>
-                    </div>
-                  ))
-                }
-              </div>
-        ))}
-           
-        {/*Create workout popup*/}
-        <div className='events'>
-          {createPopup &&  (
-            <div className='event-popup'>
-              <form onSubmit={handleCreateWorkout}>
-              <h1>Create</h1>
-              <label>Parts</label>
-              <input type="text" 
-              name="bodyPart"
-              placeholder="Body Part"
-              />
-              <label>Workout Name</label>
-              <input type="text" 
-              name="workoutName"
-              placeholder="Workout Name" 
-              />
-              <button>Save</button>
-              <button className="close-event-popup" onClick={() => setCreatePopup(false)}>
-                  <i className='bx bx-x'></i>
-                </button>
-              </form>
-            </div>
-          )}
         </div>
-          
-          
-
       </div>
     </div>
   )
