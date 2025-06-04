@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from "../contexts/authContext";
 import { Link, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
+import { collection, getDocs, addDoc, doc, setDoc } from "firebase/firestore";
+import { db } from "../firebase/firebase";
+
 
 export default function Greeting() {
   const { currentUser, username } = useAuth();
@@ -27,35 +30,49 @@ export default function Greeting() {
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
 
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(today);
   const [addPopup, setAddPopup] = useState(false);
   const [createPopup, setCreatePopup] = useState(false);
   const [detailsPopup, setDetailsPopup] = useState(false);
 
+  const [bodyParts, setBodyParts] = useState([]);
   const [workouts, setWorkouts] = useState({
     Chest: [
-      { id: uuidv4(), name: "Chest Press", weight: "", reps: "", sets: "", note: "" },
-      { id: uuidv4(), name: "Bench Press", weight: "", reps: "", sets: "", note: "" },
+      { id: uuidv4(), workoutName: "Chest Press", 
+        sets: [
+        { setId: uuidv4(), weight: "", reps: "", note: "" }]
+      },
+      { id: uuidv4(), workoutName: "Bench Press", 
+        sets: [
+        { setId: uuidv4(), weight: "", reps: "", note: "" }]
+      },
     ],
     Legs: [
-      { id: uuidv4(), name: "Squat", weight: "", reps: "", sets: "", note: "" },
+      { id: uuidv4(), workoutName: "Squat", 
+        sets: [
+        { setId: uuidv4(), weight: "", reps: "", note: "" }]
+      },
     ],
     Back: [
-      { id: uuidv4(), name: "Lat Pulldown", weight: "", reps: "", sets: "", note: "" },
-      { id: uuidv4(), name: "Underhand grip Lat Pulldown", weight: "", reps: "", sets: "", note: "" },
+      { id: uuidv4(), workoutName: "Lat Pulldown", 
+        sets: [
+        { setId: uuidv4(), weight: "", reps: "", note: "" }]
+      },
+      { id: uuidv4(), workoutName: "Underhand grip Lat Pulldown", 
+        sets: [
+        { setId: uuidv4(), weight: "", reps: "", note: "" }]
+      },
     ],
     Arms: [],
   });
 
+
  
   const [selectedWorkout, setSelectedWorkout] = useState(null);
+  const [formData, setFormData] = useState([ 
+    { weight: "", reps:"", note: ""}
+  ]);
 
-  const [formData, setFormData] = useState({
-    weight: "",
-    reps:"", 
-    sets: "",
-    note: "",
-  });
   function prevMonth() {
         setCurrentMonth((prevMonth) => (prevMonth === 0 ? 11 : prevMonth - 1));
         setCurrentYear((prevYear) => (currentMonth === 0 ? prevYear - 1 : prevYear));
@@ -65,62 +82,103 @@ export default function Greeting() {
     setCurrentMonth((prevMonth) => (prevMonth === 11 ? 0 : prevMonth + 1));
     setCurrentYear((prevYear) => (currentMonth === 11 ? prevYear + 1 : prevYear));
   }
+  const [allWorkouts, setAllWorkouts] = useState([]); //firestoreから取得した全workouts
+  const [displayedWorkouts, setDisplayedWorkouts] = useState([]); //表示対象のworkouts
+
+
+  
 
   useEffect(() => {
-    if(selectedWorkout) {
-      setFormData({
-        weight: selectedWorkout.weight || "", 
-        reps: selectedWorkout.reps || "",
-        sets: selectedWorkout.sets || "",
-        note: selectedWorkout.note || "",
-      });
+    async function fetchWorkoutData() {
+    const snapshot = await getDocs(collection(db, "workouts"));
+    const fetched = snapshot.docs.map(doc => doc.data());
+    setAllWorkouts(fetched);
+
+    const todayString = new Date().toDateString(); 
+    //newDate() で今の日時(ex: 2025-06-03T13:00:00Z)を取得,
+    //.toDateSrting()で文字列の日付に変換(ex: Tue Jun 3 2025)Firestoreのworkout.dateもこの形式
+    setDisplayedWorkouts(fetched.filter(w => w.date === todayString));
+    //dateが今日のを取り出す 
     }
-  }, [selectedWorkout]);
+
+    //sync function fetchBodyParts() {
+      //const snapshot = await getDocs(collection(db, "bodyParts"));
+      //const parts = snapshot.docs.map(doc => ({
+        //id: doc.id,
+       // ...doc.data()
+      //}));
+      //setBodyParts(parts);
+    //}
+
+    fetchWorkoutData();
+    //fetchBodyParts();
+  
+  }, []);
+
 
 
   function handleClickDate (day) {
     const clickedDate = new Date(currentYear, currentMonth, day);
+    const clickedDateString = clickedDate.toDateString();
     setSelectedDate(clickedDate);
     setAddPopup(true);
+    const filtered = allWorkouts.filter(w => w.date === clickedDateString);
+    setDisplayedWorkouts(filtered);
   }
 
   function handleClickTodays() {
     setSelectedDate(today);
     setAddPopup(true);
+
   }
   
   function handleClickCreate() {
     setCreatePopup(true);
   }
 
- function handleChangeWorkouts(e) {
+ function handleChangeWorkouts(index, e) {
     const { name, value } = e.target;
-    setFormData(prevData => ({
-      ...prevData,
-      [name]: value
-    }));
+    const updatedSets = [...formData];
+    updatedSets[index][name] = value;
+    setFormData(updatedSets);
   }
 
-  function handleWorkoutSubmit(e){
-  e.preventDefault();
-  const newWorkout = {
-    /*id: editingWorkout ? editingWorkout.id : Date.noe(), */
-    ...workouts[selectedWorkout.bodyPart][selectedWorkout.index],
-    id: uuidv4(),
-    weight: formData.weight,
-    reps: formData.reps,
-    sets: formData.sets,
-    note: formData.note,
-    date: selectedDate ? selectedDate.toDateString() : new Date().toDateString(),
-    bodyPart: selectedWorkout.bodyPart,
-    name: selectedWorkout.name,
+  function addSet() {
+    setFormData([...formData, { weight: "", reps: "", note: "" }]);
   }
-  const updatedWorkouts = {...workouts};
-  updatedWorkouts[selectedWorkout.bodyPart][selectedWorkout.index] = newWorkout;
-  setWorkouts(updatedWorkouts);
-  setDetailsPopup(false);
-  console.log(newWorkout);
-}
+
+  function calculateRM(weight, reps) {
+    const w = parseFloat(weight);
+    const r = parseFloat(reps);
+    if(!w || !r || r === 0 ) return "";
+    return (w * (1 + r / 30)).toFixed(1);
+  };
+
+  async function handleWorkoutSubmit(e) {
+    e.preventDefault();
+    const newWorkout = {
+      id: uuidv4(),
+      sets: formData,
+      date: selectedDate ? selectedDate.toDateString() : new Date().toDateString(),
+      bodyPart: selectedWorkout.bodyPart,
+      workoutName: selectedWorkout.workoutName,
+      
+    }
+
+    try {
+      const docRef = await addDoc(collection(db, "workouts"), newWorkout);
+      setWorkouts(prev => {
+        const updated = { ...prev };
+        if (!updated[newWorkout.bodyPart]) updated[newWorkout.bodyPart] =[];
+        updated[newWorkout.bodyPart].push(newWorkout);
+        return updated;
+      });
+      setDetailsPopup(false);
+      console.log("Workout saved:", newWorkout);
+    } catch(error) {
+    console.log(error);
+    }
+  }
 
 function handleCreateWorkout(e) {
   e.preventDefault();
@@ -134,12 +192,14 @@ function handleCreateWorkout(e) {
 
   const newWorkout = {
     id: uuidv4(),
-    name: workoutName,
+    workoutName: workoutName,
+    sets: [{
+    setId: uuidv4(),
     weight: "",
     reps: "",
-    sets: "",
     note: "",
-  };
+    }]
+    };
 
   setWorkouts(prev => ({
     ...prev,
@@ -210,10 +270,10 @@ function handleDeleteWorkout(id) {
               <div className='event-popup'>
                 <h1>Add Work out</h1>
                 <h2>{selectedDate ? selectedDate.toLocaleDateString() : ''}</h2>
-              {Object.keys(workouts).map((bodyPart, index) => (
-                <div key={index}>
-                  <h3>{bodyPart}</h3>
-                  {workouts[bodyPart].map((workout, idx) => (
+                {bodyParts.map((part) => (
+                <div key={part.id}>
+                <h3>{part.bodyPart}</h3>
+                  {part.workouts.map((workout, idx) => (
                   <button 
                   key={idx}
                   onClick={() => {setSelectedWorkout({
@@ -223,7 +283,7 @@ function handleDeleteWorkout(id) {
                   });
             setDetailsPopup(true);
                   }}>
-                    {workout.name}
+                    {workout.workoutName}
                   </button>
                   ))}
                 </div>
@@ -240,37 +300,39 @@ function handleDeleteWorkout(id) {
           <div className='events'>
               {detailsPopup && selectedWorkout && (
                 <div className='event-popup'>
-                  <h1>{selectedWorkout.name} (from {selectedWorkout.bodyPart})</h1>
-                  <form onSubmit={handleWorkoutSubmit}>
-                    <label>Weight:</label>
-                    <input
-                      type="number"
-                      value={formData.weight}
-                      name="weight"
-                      onChange={handleChangeWorkouts}
-                    />
-                    <label>Reps:</label>
-                    <input
-                      type="number"
-                      value={formData.reps}
-                      name="reps"
-                      onChange={handleChangeWorkouts}
-                    />
-                    <label>Sets:</label>
-                    <input
-                      type="number"
-                      value={formData.sets}
-                      name="sets"
-                      onChange={handleChangeWorkouts}
-                    />
-                    <label>Note:</label>
-                    <textarea
-                      value={formData.note}
-                      name="note"
-                      onChange={handleChangeWorkouts}
-                      placeholder="note"
-                    />
-                    <button type="submit">Save</button>
+                  <h1>{selectedWorkout.workoutName} (from {selectedWorkout.bodyPart})</h1>
+                  <form 
+                  onSubmit={handleWorkoutSubmit}
+                  className='workoutDetail'
+                  >
+                    {formData.map((set, index) => (
+                      <div className='set' key={index}>
+                        <label>Set {index + 1}</label>
+                        <input
+                        type="number"
+                        value={set.weight}
+                        name="weight"
+                        placeholder="Weight"
+                        onChange={(e) => handleChangeWorkouts(index, e)}
+                        />
+                        <input
+                        type="number"
+                        value={set.reps}
+                        name="reps"
+                        placeholder="Reps"
+                        onChange={(e) => handleChangeWorkouts(index, e)}
+                        />
+                        <textarea
+                          value={set.note}
+                          name="note"
+                          onChange={(e) => handleChangeWorkouts(index, e)}
+                          placeholder="Note"
+                        />
+                        <div>RM: {calculateRM(set.weight, set.reps)}</div>
+                    </div>
+                    ))}
+                  <button type="button" onClick={addSet}>+ Add Set</button>
+                  <button type="submit">Save</button>
                   </form>
                   <button className="close-event-popup" onClick={() => setDetailsPopup(false)}>
                     <i className='bx bx-x'></i>
@@ -280,30 +342,26 @@ function handleDeleteWorkout(id) {
           </div>
 
           {/*to display workout*/}
-          {Object.entries(workouts).map(([bodyPart, exercises]) => (
-                <div key={bodyPart}>
-                  {exercises
-                    .filter(workout => workout.date === (selectedDate && selectedDate.toDateString()))
-                    .map((workout, index) => (
-                      <div className='event' key={index}>
-                        <div className='event-date'>{workout.date}</div>
-                        <div className='event-time'>{bodyPart}</div>
-                        <div className='event-text'>
-                          {workout.name} 
-                          weight: {workout.weight} 
-                          reps: {workout.reps} 
-                          sets: {workout.sets} 
-                          note: {workout.note}
-                        </div> 
-                        <div className='event-buttons'>
-                          <i className='bx bxs-edit-alt' ></i>
-                          <i className='bx bxs-message-alt-x' onClick={() => handleDeleteWorkout(workout.id)}></i>
-                        </div>
-                      </div>
-                    ))
-                  }
-                </div>
+          {displayedWorkouts.map((workout, index) => (
+            <div className='event' key={index}>
+              <div className='event-date'>{workout.date}</div>
+              <div className='event-time'>{workout.bodyPart}</div>
+              <div className='event-text'>
+                {workout.workoutName}<br />
+                {workout.sets.map((set, i) => (
+                  <div key={i}> 
+                    Set {i+1}: {set.weight} kg x {set.reps}Reps<br />
+                    Note: {set.note}
+                  </div>
+                ))}
+              </div> 
+              <div className='event-buttons'>
+                <i className='bx bxs-edit-alt' ></i>
+                <i className='bx bxs-message-alt-x' onClick={() => handleDeleteWorkout(workout.id)}></i>
+              </div>
+            </div>
           ))}
+                
             
           {/*Create workout popup*/}
           <div className='events'>
@@ -337,3 +395,6 @@ function handleDeleteWorkout(id) {
     </div>
   )
 }
+//firestoreに保存したデータをフェッチして最初は今日のworkouts, カレンダーclickしたらクリックした日のworkoutsを表示できるようにした。
+//bodyPart workooutnameも同じようにfirestoreからフェッチして表示したいがエラー
+//bodyPartsのデータ構造を考えなおしてそれに応じたinput formをつくる

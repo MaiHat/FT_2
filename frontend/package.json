@@ -11,6 +11,7 @@
     "sass": "sass src:src --watch"
   },
   "dependencies": {
+    "firebase": "^11.8.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router": "^7.3.0",

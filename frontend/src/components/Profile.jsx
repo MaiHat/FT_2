@@ -3,7 +3,6 @@ import { Card, Button, Alert } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/authContext";
 import Header from "./Header";
-import Calendar from "./Calendar";
 import Greeting from "./Greeting";
 
 

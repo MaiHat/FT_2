@@ -8,7 +8,7 @@ import { AuthProvider } from "./contexts/authContext";
 import PrivateRoute from "./components/PrivateRoute";
 import ForgotPassword from "./components/ForgotPassword";
 import UpdateProfile from "./components/UpdateProfile";
-import Calendar from "./components/Calendar";
+
 
 //import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -25,7 +25,6 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/update-profile" element={<UpdateProfile />} />
-            <Route path="/calendar" element={<Calendar />} /> 
           </Routes>
           </AuthProvider>
       </BrowserRouter>
