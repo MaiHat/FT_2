@@ -1,34 +1,55 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { collection, getDocs, addDoc, doc, setDoc, Timestamp, query, where } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 {/*get workout data by date from database 
     display list of workout by bodyPart 
     for every bodyPart it should list workoutName
-    for every workoutName have list of sets */}
-export default function WorkoutList() {
+    for every workoutName have list of sets 
+    
+  dateの表示に苦戦中
+
+    */}
+
+export default function WorkoutList({selectedDate}) {
+    const [displayedWorkouts, setDisplayedWorkouts] = useState([]);
     async function fetchWorkoutData() {
-        const yesterday = new Date("June 13, 2025 23:15:30");
-        const ts = Timestamp.fromDate(yesterday);
-        const todayString = new Date();
-        const q = query(collection(db, "workouts"), where("date", ">", ts));
+        const ts = Timestamp.fromDate(selectedDate);
+        //Timestamp is too acurate(by ミリseconds) so need to tell where to devide.
+        const start = Timestamp.fromDate(new Date(selectedDate.setHours(0, 0, 0, 0)));
+        const end = Timestamp.fromDate(new Date(selectedDate.setHours(23, 59, 59, 999)));
+        //JSのデータ型をfirestoreのtimestamp型に変換し、0時から11:59までに設定
+        const q = query(collection(db, "workouts"), where("date", ">=", start), where("date", "<=", end));
         const snapshot = await getDocs(q);
         const fetched = snapshot.docs.map(doc => doc.data());
-        //setAllWorkouts(fetched);
-        console.log(fetched);
-        //newDate() で今の日時(ex: 2025-06-03T13:00:00Z)を取得,
-        //.toDateSrting()で文字列の日付に変換(ex: Tue Jun 3 2025)Firestoreのworkout.dateもこの形式
-        //setDisplayedWorkouts(fetched.filter(w => w.date === todayString));
-        //dateが今日のを取り出す 
+        console.log(fetched, selectedDate);
+        setDisplayedWorkouts(fetched);
     }
     useEffect(() => {
-    
-    fetchWorkoutData();
-    //fetchBodyParts();
-  
-  }, []);
+      fetchWorkoutData();
+      //fetchBodyParts();
+    }, []);
   return (
     <div>
       Karaage
+      {displayedWorkouts.map((workout, index) => (
+            <div className='event' key={index}>
+              <div className='event-date'>{/*workout.date*/}</div>
+              <div className='event-time'>{workout.bodyPart}</div>
+              <div className='event-text'>
+                {workout.workoutName}<br />
+                {workout.sets.map((set, i) => (
+                  <div key={i}> 
+                    Set {i+1}: {set.weight} kg x {set.reps}Reps<br />
+                    Note: {set.note}
+                  </div>
+                ))}
+              </div> 
+              <div className='event-buttons'>
+                <i className='bx bxs-edit-alt' ></i>
+                <i className='bx bxs-message-alt-x' onClick={() => handleDeleteWorkout(workout.id)}></i>
+              </div>
+            </div>
+          ))}
     </div>
   )
 }

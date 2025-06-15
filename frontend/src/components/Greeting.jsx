@@ -8,6 +8,7 @@ import WorkoutList from './WorkoutList';
 
 
 export default function Greeting() {
+
   const { currentUser, username } = useAuth();
   const navigate = useNavigate();
   const today = new Date();
@@ -26,8 +27,8 @@ export default function Greeting() {
    "November",
    "December",
     ];
-  const [currentMonth, setCurrentMonth] = useState(today.getMonth());
-  const [currentYear, setCurrentYear] = useState(today.getFullYear());
+  const [currentMonth, setCurrentMonth] = useState(today.getMonth()); //今の月 ex, 6月だと5
+  const [currentYear, setCurrentYear] = useState(today.getFullYear()); //今の年　ex, 2025
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
 
@@ -72,9 +73,7 @@ export default function Greeting() {
     ],
     Arms: [],
   });
-
-
- 
+  
   const [selectedWorkout, setSelectedWorkout] = useState(null);
   const [formData, setFormData] = useState([ 
     { weight: "", reps:"", note: ""}
@@ -90,47 +89,16 @@ export default function Greeting() {
     setCurrentYear((prevYear) => (currentMonth === 11 ? prevYear + 1 : prevYear));
   }
   const [allWorkouts, setAllWorkouts] = useState([]); //firestoreから取得した全workouts
-  const [displayedWorkouts, setDisplayedWorkouts] = useState([]); //表示対象のworkouts
-
-
   
 
-  useEffect(() => {
-    async function fetchWorkoutData() {
-    const snapshot = await getDocs(collection(db, "workouts"));
-    const fetched = snapshot.docs.map(doc => doc.data());
-    setAllWorkouts(fetched);
 
-    const todayString = new Date().toDateString(); 
-    //newDate() で今の日時(ex: 2025-06-03T13:00:00Z)を取得,
-    //.toDateSrting()で文字列の日付に変換(ex: Tue Jun 3 2025)Firestoreのworkout.dateもこの形式
-    setDisplayedWorkouts(fetched.filter(w => w.date === todayString));
-    //dateが今日のを取り出す 
-    }
-
-    //sync function fetchBodyParts() {
-      //const snapshot = await getDocs(collection(db, "bodyParts"));
-      //const parts = snapshot.docs.map(doc => ({
-        //id: doc.id,
-       // ...doc.data()
-      //}));
-      //setBodyParts(parts);
-    //}
-
-    fetchWorkoutData();
-    //fetchBodyParts();
-  
-  }, []);
 
 
 
   function handleClickDate (day) {
     const clickedDate = new Date(currentYear, currentMonth, day);
-    const clickedDateString = clickedDate.toDateString();
     setSelectedDate(clickedDate);
     setAddPopup(true);
-    const filtered = allWorkouts.filter(w => w.date === clickedDateString);
-    setDisplayedWorkouts(filtered);
   }
 
   function handleClickTodays() {
@@ -175,7 +143,7 @@ export default function Greeting() {
       const docRef = await addDoc(collection(db, "workouts"), newWorkout);
       setWorkouts(prev => {
         const updated = { ...prev };
-        console.log(updated);
+        console.log("updated", updated);
         if (!updated[newWorkout.bodyPart]) updated[newWorkout.bodyPart] =[];
         updated[newWorkout.bodyPart].push(newWorkout);
         return updated;
@@ -349,26 +317,11 @@ function handleDeleteWorkout(id) {
           </div>
 
           {/*to display workout*/}
-          <WorkoutList />
-          {displayedWorkouts.map((workout, index) => (
-            <div className='event' key={index}>
-              <div className='event-date'>{workout.date}</div>
-              <div className='event-time'>{workout.bodyPart}</div>
-              <div className='event-text'>
-                {workout.workoutName}<br />
-                {workout.sets.map((set, i) => (
-                  <div key={i}> 
-                    Set {i+1}: {set.weight} kg x {set.reps}Reps<br />
-                    Note: {set.note}
-                  </div>
-                ))}
-              </div> 
-              <div className='event-buttons'>
-                <i className='bx bxs-edit-alt' ></i>
-                <i className='bx bxs-message-alt-x' onClick={() => handleDeleteWorkout(workout.id)}></i>
-              </div>
-            </div>
-          ))}
+          <WorkoutList  
+          selectedDate={selectedDate}
+          
+          />
+          
                 
             
           {/*Create workout popup*/}
