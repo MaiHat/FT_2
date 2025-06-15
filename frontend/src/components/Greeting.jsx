@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from "../contexts/authContext";
 import { Link, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
-import { collection, getDocs, addDoc, doc, setDoc } from "firebase/firestore";
+import { collection, getDocs, addDoc, doc, setDoc, Timestamp } from "firebase/firestore";
 import { db } from "../firebase/firebase";
+import WorkoutList from './WorkoutList';
 
 
 export default function Greeting() {
@@ -35,16 +36,22 @@ export default function Greeting() {
   const [createPopup, setCreatePopup] = useState(false);
   const [detailsPopup, setDetailsPopup] = useState(false);
 
-  const [bodyParts, setBodyParts] = useState([]);
+  const [bodyParts, setBodyParts] = useState([
+    {id: "Chest", workoutName: ["Chest Press", "Bench Press"]},
+    { id: "Legs", workoutName: ["Squat"]},
+]);
+ 
+
+
   const [workouts, setWorkouts] = useState({
     Chest: [
       { id: uuidv4(), workoutName: "Chest Press", 
         sets: [
-        { setId: uuidv4(), weight: "", reps: "", note: "" }]
+        { setId: uuidv4(), weight: "", reps: "", note: "", RM: "" }]
       },
       { id: uuidv4(), workoutName: "Bench Press", 
         sets: [
-        { setId: uuidv4(), weight: "", reps: "", note: "" }]
+        { setId: uuidv4(), weight: "", reps: "", note: "", RM: "" }]
       },
     ],
     Legs: [
@@ -129,7 +136,6 @@ export default function Greeting() {
   function handleClickTodays() {
     setSelectedDate(today);
     setAddPopup(true);
-
   }
   
   function handleClickCreate() {
@@ -156,19 +162,20 @@ export default function Greeting() {
 
   async function handleWorkoutSubmit(e) {
     e.preventDefault();
-    const newWorkout = {
+      const date = selectedDate || new Date();
+      const newWorkout = {
       id: uuidv4(),
       sets: formData,
-      date: selectedDate ? selectedDate.toDateString() : new Date().toDateString(),
-      bodyPart: selectedWorkout.bodyPart,
+      date: Timestamp.fromDate(date),
+      bodyPart: selectedWorkout.id,
       workoutName: selectedWorkout.workoutName,
-      
-    }
-
+      }
+    console.log(newWorkout);
     try {
       const docRef = await addDoc(collection(db, "workouts"), newWorkout);
       setWorkouts(prev => {
         const updated = { ...prev };
+        console.log(updated);
         if (!updated[newWorkout.bodyPart]) updated[newWorkout.bodyPart] =[];
         updated[newWorkout.bodyPart].push(newWorkout);
         return updated;
@@ -272,18 +279,18 @@ function handleDeleteWorkout(id) {
                 <h2>{selectedDate ? selectedDate.toLocaleDateString() : ''}</h2>
                 {bodyParts.map((part) => (
                 <div key={part.id}>
-                <h3>{part.bodyPart}</h3>
-                  {part.workouts.map((workout, idx) => (
+                <h3>{part.id}</h3>
+                  {part.workoutName.map((wn, idx) => (
                   <button 
                   key={idx}
                   onClick={() => {setSelectedWorkout({
-              bodyPart: bodyPart,
-              index: idx,
-              ...workout
+                    id: part.id,
+                    index: idx,
+                    workoutName: wn
                   });
             setDetailsPopup(true);
                   }}>
-                    {workout.workoutName}
+                    {wn}
                   </button>
                   ))}
                 </div>
@@ -342,6 +349,7 @@ function handleDeleteWorkout(id) {
           </div>
 
           {/*to display workout*/}
+          <WorkoutList />
           {displayedWorkouts.map((workout, index) => (
             <div className='event' key={index}>
               <div className='event-date'>{workout.date}</div>
