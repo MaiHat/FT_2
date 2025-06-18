@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from "../contexts/authContext";
 import { Link, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
-import { collection, getDocs, addDoc, doc, setDoc, Timestamp } from "firebase/firestore";
+import { collection, getDocs, addDoc, doc, setDoc, Timestamp, query } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import WorkoutList from './WorkoutList';
 
@@ -29,9 +29,8 @@ export default function Greeting() {
     ];
   const [currentMonth, setCurrentMonth] = useState(today.getMonth()); //今の月 ex, 6月だと5
   const [currentYear, setCurrentYear] = useState(today.getFullYear()); //今の年　ex, 2025
-  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-  const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
-
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();//0=Sunday, 1=Monday...
+  const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();//ex30 
   const [selectedDate, setSelectedDate] = useState(today);
   const [addPopup, setAddPopup] = useState(false);
   const [createPopup, setCreatePopup] = useState(false);
@@ -40,39 +39,9 @@ export default function Greeting() {
   const [bodyParts, setBodyParts] = useState([
     {id: "Chest", workoutName: ["Chest Press", "Bench Press"]},
     { id: "Legs", workoutName: ["Squat"]},
-]);
- 
-
-
-  const [workouts, setWorkouts] = useState({
-    Chest: [
-      { id: uuidv4(), workoutName: "Chest Press", 
-        sets: [
-        { setId: uuidv4(), weight: "", reps: "", note: "", RM: "" }]
-      },
-      { id: uuidv4(), workoutName: "Bench Press", 
-        sets: [
-        { setId: uuidv4(), weight: "", reps: "", note: "", RM: "" }]
-      },
-    ],
-    Legs: [
-      { id: uuidv4(), workoutName: "Squat", 
-        sets: [
-        { setId: uuidv4(), weight: "", reps: "", note: "" }]
-      },
-    ],
-    Back: [
-      { id: uuidv4(), workoutName: "Lat Pulldown", 
-        sets: [
-        { setId: uuidv4(), weight: "", reps: "", note: "" }]
-      },
-      { id: uuidv4(), workoutName: "Underhand grip Lat Pulldown", 
-        sets: [
-        { setId: uuidv4(), weight: "", reps: "", note: "" }]
-      },
-    ],
-    Arms: [],
-  });
+  ]);
+  const [displayedBodyParts, setDisplayedBodyParts] = useState([]);
+  const [workouts, setWorkouts] = useState({});
   
   const [selectedWorkout, setSelectedWorkout] = useState(null);
   const [formData, setFormData] = useState([ 
@@ -88,13 +57,7 @@ export default function Greeting() {
     setCurrentMonth((prevMonth) => (prevMonth === 11 ? 0 : prevMonth + 1));
     setCurrentYear((prevYear) => (currentMonth === 11 ? prevYear + 1 : prevYear));
   }
-  const [allWorkouts, setAllWorkouts] = useState([]); //firestoreから取得した全workouts
   
-
-
-
-
-
   function handleClickDate (day) {
     const clickedDate = new Date(currentYear, currentMonth, day);
     setSelectedDate(clickedDate);
@@ -108,6 +71,13 @@ export default function Greeting() {
   
   function handleClickCreate() {
     setCreatePopup(true);
+  }
+  async function fetchBodyParts() {
+     const q = query(collection(db, "bodyParts"));
+      const snapshot = await getDocs(q);
+      const fetched = snapshot.docs.map(doc => doc.data());
+      console.log("bodyParts:", fetched);
+      setDisplayedBodyParts(fetched);
   }
 
  function handleChangeWorkouts(index, e) {
@@ -130,14 +100,21 @@ export default function Greeting() {
 
   async function handleWorkoutSubmit(e) {
     e.preventDefault();
-      const date = selectedDate || new Date();
-      const newWorkout = {
+    const date = selectedDate || new Date();
+    const setsWithRM = formData.map(set => ({
+      ...set,
+      RM: calculateRM(set.weight, set.reps) 
+      ? parseFloat(calculateRM(set.weight, set.reps))
+      : null
+    }));
+
+    const newWorkout = {
       id: uuidv4(),
-      sets: formData,
+      sets: setsWithRM,
       date: Timestamp.fromDate(date),
       bodyPart: selectedWorkout.id,
       workoutName: selectedWorkout.workoutName,
-      }
+    }
     console.log(newWorkout);
     try {
       const docRef = await addDoc(collection(db, "workouts"), newWorkout);
@@ -192,6 +169,10 @@ function handleDeleteWorkout(id) {
   setWorkouts(updated);
 }
 
+useEffect( () => {
+   fetchBodyParts()
+}, []);
+
   return (
     <div className='calendar-container'>
       <div className='calendar-app'>
@@ -214,6 +195,12 @@ function handleDeleteWorkout(id) {
                   {[...Array(firstDayOfMonth).keys()].map((_, index) => (
                       <span key={`empty-${index}`}/>
                   ))}
+                  {/*Array(firstDayOfMonth) で「空白の箱」を作る 
+                  keys() で 0 から firstDayOfMonth - 1 までの数字列を作る
+                  .map() で空白 <span>
+                  もし月の初日が木曜日（4）なら空の <span> が4個作られる
+                  <span></span> <span></span> <span></span> <span></span>
+                  */}
                   {[...Array(daysInMonth).keys()].map((day) => 
                   <span 
                   key={day + 1} 
@@ -227,6 +214,11 @@ function handleDeleteWorkout(id) {
                   {day+1}
                   </span>
                   )}
+                  {/* Array(daysInMonth).keys()    月の日数分（28〜31日）だけ数列を作る → 例: [0, 1, 2, ..., 30]（31日分）
+                  .map((day) => <span key={day + 1}>    day は 0〜30（0始まり）なので、day + 1 が実際のカレンダー日
+                  className部分は今日の日付であれば "current-day" クラスを付与する条件分岐、
+                  今日が 2025年6月16日 の場合、 16 にだけ "current-day" クラスが付く
+                    */}
               </div>
             </div>
         </div>
@@ -245,7 +237,7 @@ function handleDeleteWorkout(id) {
               <div className='event-popup'>
                 <h1>Add Work out</h1>
                 <h2>{selectedDate ? selectedDate.toLocaleDateString() : ''}</h2>
-                {bodyParts.map((part) => (
+                {displayedBodyParts.map((part) => (
                 <div key={part.id}>
                 <h3>{part.id}</h3>
                   {part.workoutName.map((wn, idx) => (
@@ -318,12 +310,9 @@ function handleDeleteWorkout(id) {
 
           {/*to display workout*/}
           <WorkoutList  
-          selectedDate={selectedDate}
-          
+            selectedDate={selectedDate}
+            onClick={handleClickDate}
           />
-          
-                
-            
           {/*Create workout popup*/}
           <div className='events'>
             {createPopup &&  (
@@ -356,6 +345,3 @@ function handleDeleteWorkout(id) {
     </div>
   )
 }
-//firestoreに保存したデータをフェッチして最初は今日のworkouts, カレンダーclickしたらクリックした日のworkoutsを表示できるようにした。
-//bodyPart workooutnameも同じようにfirestoreからフェッチして表示したいがエラー
-//bodyPartsのデータ構造を考えなおしてそれに応じたinput formをつくる
